@@ -46,16 +46,23 @@ def callback(event):
             index = selection[0]
             data = event.widget.get(index)
             window.label.configure(text=data)
-        else:
-            window.label.configure(text="")
 
-def load_lyric():
-    listbox_lyrics.delete(0,tk.END)
-    f = open(listbox_song.get(listbox_song.curselection()), "r", encoding="utf8")
+def item_selected(event1):
+    selection = event1.widget.curselection()
+    if selection:
+        listbox_lyrics.delete(0,tk.END)
+        # list
+        f = open(listbox_song.get(listbox_song.curselection()), "r", encoding="utf8")
+        for x in f:
+            listbox_lyrics.insert('end', x)
+        f.close()
 
-    for x in f:
-        listbox_lyrics.insert('end', x)
-    f.close()
+def reload():
+    listbox_song.delete(0,tk.END)
+    files = os.listdir('.')
+    for name in files:
+        if name.endswith(('.txt', '.lyr')):
+            listbox_song.insert('end', name)
 
 files = os.listdir('.')
 
@@ -68,8 +75,8 @@ label.pack(side="top", pady=10)
 
 btn_new_window = tk.Button(master, text="Click to open character generator", command=new_window)
 btn_new_window.pack(pady=10)
-btn_load_lyric = tk.Button(master, text="load", command=load_lyric)
-btn_load_lyric.pack(pady=10)
+btn_reload = tk.Button(master, text="Reload", command=reload)
+btn_reload.pack(pady=10)
 
 #Song selection
 if int(BKSG_FONT_SIZE) > 10:
@@ -79,6 +86,7 @@ for name in files:
     if name.endswith(('.txt', '.lyr')):
         listbox_song.insert('end', name)
 listbox_song.pack(side="left", fill="both")
+listbox_song.bind("<<ListboxSelect>>", item_selected)
 
 #Lyrics selection
 listbox_lyrics = tk.Listbox(master, font=(BKSG_FONT_FAMILY, BKSG_FONT_SIZE))
